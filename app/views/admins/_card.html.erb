@@ -1,0 +1,12 @@
+<div class="bg-gray-100 shadow-md rounded-lg p-6">
+  <h2 class="text-xl text-center text-gray-700 font-bold">
+    <%= title %>
+  </h2>
+  <ul class="list-disc list-inside mt-4">
+    <% stats.each do |key, count| %>
+      <ol class="font-semibold text-center">
+        <%= defined?(link) ? link_to(key) : key %> <%= ' - ' + count.to_s if count %>
+      </ol>
+    <% end %>
+  </ul>
+</div>

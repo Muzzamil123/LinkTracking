@@ -5,7 +5,13 @@
 Your task is to implement a feature in this Rails 8 application that tracks every link click, both to internal pages and external websites.
 This data should be stored in a database table called `link_clicks` without significantly impacting the application's performance.
 
-## Requirements
+### Technical Requirements
+
+- Ruby 3.3.5
+- Rails 8.0.0.beta1
+- SQLite
+- Solid Queue for background jobs
+- Solid Cache for caching
 
 ### Core Features
 
@@ -14,91 +20,33 @@ This data should be stored in a database table called `link_clicks` without sign
 3. Capture relevant details about each click
 4. Implement the feature with minimal performance impact
 
-### Technical Requirements
+### Implementation Details
+- I've added a `LinkClick` model with necessary validations and also indexes to fetch data faster.
+- I've used `@hotwired/stimulus` **LinkClickController** in **js** which is initialized under 
+  `application.html.erb's <main> tag i.e data-controller="link-click"` which is responsible for tracking all links 
+  across website. I am using **navigator.sendBeacon** to send click links asynchronously but also using fallback approach
+  in case browser doesn't support **sendBeacon**. On top of that I am also using **Debouncing mechanism** to only
+  send request if user doesn't click on any link for 4 seconds just to avoid overloading server. I am sending clicks in
+  batches if user clicks multiple times within _4 secs_ (this we can change in js file). Also sending batch unsent clicks on `page_unload` event.
+- I've used `SolidQueue` for background processing which will perform **StoreLinkClickJob** asynchronously to create `LinkClick` records.
+- For **Rate Limiting**, I used **Rails 8's** smart mechanism instead of using an external gem where we can define **RateLimit** for
+  specific action, you can see this under **LinkClicksController**.
+- For Admin's Dashboard Stats, I introduced **Concern** named **LinkClickAnalytics** which is responsible for
+  calculating all **LinkClick Stats**. I used Rails cache mechanism (**solid_cache in specific**) to keep stats in cache
+  for **5 minutes** before making new query (Also this value can be changed as per needs under concern). Also verified
+  using **.explain** that all stats queries are using index scan.
+- I used **Tailwind** to design and display Admin's dashboard stats.
+- For **specs**, I've used **minitest** and wrote `model`, `concern`, `job` and `controller integration's` tests. 
 
-1. Use Ruby on Rails 8 (this application is already set up with Rails 8)
-2. Use SQLite as the database for simplicity (you can switch to PostgreSQL if needed)
-3. Use solid_queue for background jobs
-4. Create a migration for the `link_clicks` table
-5. Implement a mechanism to track clicks without blocking the user's navigation
-6. Use a background job for storing click data
-7. Implement a JavaScript solution to capture click events
-8. Create a basic admin interface to view click statistics
-9. Write model and integration tests using Rails' default testing framework (Minitest)
+### Commands to setup and start project from scratch
 
-## Detailed Requirements
+1. Add `queue`,`cache` and `primary` section under `development` in `database.yml` (if you don't have it)
+2. Execute these commands:
+   - `bin/rails db:drop` (only if databases exists previously under `storage/` path)
+   - `bin/rails solid_queue:install`
+   - `bin/rails solid_cache:install` (you need to add `database: cache` under each env in `config/cache.yml` file)
+   - `bin/rails db:prepare`
+   - `bin/rails db:migrate`
+   - `bin/rails solid_queue:start` (in a separate terminal for background job)
+   - you can start `server` using `./bin/dev` under project directory (tailwind styling will appear automatically as well)
 
-### Data Model
-
-Create a migration for the `link_clicks` table with the following fields:
-- `id` (primary key)
-- `url` (string, the full URL of the clicked link)
-- `anchor_text` (string, the text content of the clicked link)
-- `referrer` (string, the page URL where the click originated)
-- `user_agent` (string, the user's browser information)
-- `ip_address` (string, the user's IP address)
-- `created_at` (timestamp)
-
-Ensure appropriate indexes are added for efficient querying.
-
-### Backend Implementation
-
-1. Create a `LinkClick` model with appropriate validations and associations
-2. Implement a background job using solid_queue to handle the storing of click data asynchronously
-3. Create a controller action to receive click data from the frontend
-4. Implement basic analytics methods on the `LinkClick` model (e.g., most clicked links, click counts by day)
-
-### Frontend Implementation
-
-1. Develop a JavaScript solution to capture click events on all links (`<a>` tags) within the application
-2. For each click, collect relevant data (URL, anchor text, referrer) and send it to the backend
-3. Ensure the data is sent asynchronously without delaying the user's navigation
-4. Handle both internal and external links appropriately
-
-### Admin Interface
-
-1. Create a basic admin interface to view click statistics
-2. Use Tailwind CSS for styling the admin interface
-3. Implement a simple dashboard showing aggregated statistics (e.g., total clicks, most clicked links)
-4. Optionally, add a date range selector to filter click data by date
-
-### Performance Considerations
-
-1. Implement a rate limiting mechanism to prevent abuse
-2. Optionally, consider using batch inserts for click data if high volume is expected
-3. Implement appropriate database indexes for efficient querying
-4. Use caching for frequently accessed statistics in the admin interface
-
-### Testing
-
-Write tests using Rails' default testing framework (Minitest) to cover:
-- `LinkClick` model methods
-- Click tracking functionality (integration tests)
-- Background job functionality
-
-## Evaluation Criteria
-
-Your submission will be evaluated based on:
-
-1. Correctness of the implementation
-2. Performance considerations and optimizations
-3. Code quality and organization
-4. Proper use of Rails conventions and best practices
-5. Effectiveness of the JavaScript solution
-7. Test coverage and quality
-
-## Submission Guidelines
-
-1. Clone this repository and work on your solution locally in a separate branch
-2. Once you're done, push your changes to your own GitHub repository
-3. Include a README.md with:
-   - Explanation of your implementation approach
-   - Any assumptions or trade-offs made
-   - Ideas for future improvements or scaling considerations
-4. Ensure that the application can be set up and run locally with minimal effort
-
-## Time Limit
-
-You have a maximum of 5 hours to complete this assignment. Focus on implementing the core functionality efficiently and demonstrating your full-stack Rails development skills.
-
-Good luck!

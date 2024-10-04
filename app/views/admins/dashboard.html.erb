@@ -1,0 +1,55 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold">
+      Admin Dashboard
+    </h1>
+    <p class="text-gray-600">
+      Overview of link clicks and statistics
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <%= render partial: 'card', locals: { title: 'Total Clicks', stats: [@total_clicks] } %>
+    <%= render partial: 'card', locals: { title: 'Top 5 most clicked links', stats: @top_clicked_links, link: true } %>
+    <%= render partial: 'card', locals: { title: 'Clicks per last 5 days', stats: @clicks_by_day } %>
+  </div>
+</div>
+
+    <!-- ------------------------------------------------------------------------------ -->
+    <!--  Note: We can also use custom cards as specified below or can use same partial -->
+    <!-- ------------------------------------------------------------------------------ -->
+
+<!--    <div class="bg-indigo-600 shadow-md rounded-lg p-6">-->
+<!--      <h2 class="text-xl text-white text-center font-bold">-->
+<!--        Total clicks-->
+<!--      </h2>-->
+<!--      <p class="text-4xl text-center font-bold text-white mt-4">-->
+        <%#= @total_clicks %>
+<!--      </p>-->
+<!--    </div>-->
+
+<!--    <div class="bg-gray-100 shadow-md rounded-lg p-6">-->
+<!--      <h2 class="text-xl text-center text-gray-700 font-bold">-->
+<!--        Top 5 most clicked links-->
+<!--      </h2>-->
+<!--      <ul class="list-disc list-inside mt-4">-->
+        <%# @top_clicked_links.each do |url, count| %>
+<!--          <ol class="font-semibold text-center">-->
+            <%#= link_to url %>
+<!--          </ol>-->
+        <%# end %>
+<!--      </ul>-->
+<!--    </div>-->
+
+<!--    <div class="bg-red-50 shadow-md rounded-lg p-6">-->
+<!--      <h2 class="text-xl text-red-500 font-bold text-center">Clicks per last 5 days</h2>-->
+<!--      <ul class="list-disc list-inside mt-4">-->
+        <%# @clicks_by_day.each do |day, count| %>
+<!--          <ol class="font-semibold text-center">-->
+<!--            <p class="font-medium text-gray-700">-->
+<!--              <%#= day %> - <span class="font-bold text-gray-600"><%#= count %></span>-->
+<!--            </p>-->
+<!--          </ol>-->
+        <%# end %>
+<!--      </ul>-->
+<!--    </div>-->
